@@ -17,9 +17,9 @@ if(isset($_POST['btn-editar'])):
 
     if(mysqli_query($connect, $sql)):
         $_SESSION['mensagem'] = "Alterado com sucesso";
-        header('Location: ../index.php');
+        header('Location: ../registro.php');
     else:
         $_SESSION['mensagem'] = "Erro na alteração";
-        header('Location: ../index.php');
+        header('Location: ../registro.php');
     endif;    
 endif;

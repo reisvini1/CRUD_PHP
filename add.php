@@ -1,7 +1,9 @@
 <?php
 // Header
-session_start();
 require 'includes/header.php';
+
+// Sessão
+session_start();
 ?>
 
 <div class="row">
@@ -26,7 +28,7 @@ require 'includes/header.php';
             </div>
 
             <button type="submit" name="btn-cadastrar" class="btn">Cadastrar</button>
-            <a href="index.php" class="btn blue">Lista de clientes</a>
+            <a href="registro.php" class="btn blue">Lista de clientes</a>
         </form>
 
 

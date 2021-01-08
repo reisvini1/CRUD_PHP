@@ -39,7 +39,7 @@ endif;
             </div>
 
             <button type="submit" name="btn-editar" class="btn">Editar</button>
-            <a href="index.php" class="btn blue">Lista de clientes</a>
+            <a href="registro.php" class="btn blue">Lista de clientes</a>
         </form>
 
 
