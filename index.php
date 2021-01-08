@@ -1,91 +1,75 @@
 <?php
-// Conexão
+// Conexão 
 require 'php_action/db_connect.php';
 
 // Header
-require 'includes/header.php';
+require 'includes/header_login.php';
 
 // Message
 require 'includes/message.php';
-?>
 
-<div class="row">
-    <div class="col s12 m6 push-m3">
-        <h3 class="light">Clientes</h3>
-        <table class="striped">
-            <thead>
-                <tr>
-                    <th>Nome:</th>
-                    <th>Sobrenome:</th>
-                    <th>Email:</th>
-                    <th>Idade:</th>
-                </tr>
-            </thead>
-            <tbody>
+// Botão entrar
+if(isset($_POST['btn-login'])):
+    $login = mysqli_escape_string($connect, $_POST['login']);
+    $senha = mysqli_escape_string($connect, $_POST['senha']);
+    
+    // Lembrar senha
+	if(isset($_POST['lembrar-senha'])):
 
-            <?php
-            // SELECT BANCO
-            $sql = "SELECT * FROM clientes";
+		setcookie('login', $login, time()+3600);
+		setcookie('senha', md5($senha), time()+3600);
+	endif;
+
+    // Verif. usuário ou senha vazios
+    if(empty($login) || empty($senha)):
+        $_SESSION['mensagem'] = "O campo login ou senha não pode ficar vazio";
+        header('Location: index.php');
+    else:
+        $sql = "SELECT login FROM usuarios WHERE login = '$login'";
+        $resultado = mysqli_query($connect, $sql);
+        
+        // Conexão DB e encriptografia senha
+        if(mysqli_num_rows($resultado) > 0):
+            $senha = md5($senha);
+            $sql = "SELECT * FROM usuarios WHERE login = '$login' AND senha = '$senha'";
+
             $resultado = mysqli_query($connect, $sql);
 
-            if(mysqli_num_rows($resultado) > 0):
+            if(mysqli_num_rows($resultado) == 1):
+                $dados = mysqli_fetch_array($resultado);
+                mysqli_close($connect);
 
-                while($dados = mysqli_fetch_array($resultado)):
-            ?>
-                    
-                    <!-- Tabela -->
-                    <tr>
-                        <td><?php echo $dados ['nome']; ?></td>
-                        <td><?php echo $dados ['sobrenome']; ?></td>
-                        <td><?php echo $dados ['email']; ?></td>
-                        <td><?php echo $dados ['idade']; ?></td>
+                $_SESSION['logado'] = true;
+                $_SESSION['id_usuario'] = $dados['id'];
+                header('Location: registro.php');
+            else:
+                $_SESSION['mensagem'] = "Usuário e senha não conferem";
+            endif;
+        
+        else:
+            $_SESSION['mensagem'] = "Usuário inexistente";
+        endif;
 
-                        <!-- Botão Editar -->
-                        <td><a href="edit.php?id=<?php echo $dados ['id']; ?>" class="btn-floating blue"><i class="material-icons">edit</i></a></td>
+    endif;
 
-                        <!-- Botão Excluir -->
-                        <td><a href="#modal<?php echo $dados ['id']; ?>" class="btn-floating red modal-trigger"><i class="material-icons">delete</i></a></td>
+endif;
+?>
 
-                        <!-- Modal Structure -->
-                        <div id="modal<?php echo $dados ['id']; ?>" class="modal">
-                            <div class="modal-content">
-                            <h4>Opa!</h4>
-                            <p>Tem certeza que deseja excluir esse cliente?</p>
-                            </div>
-                            <div class="modal-footer">
-
-                            <form action="php_action/delete.php" method="post">
-                                <input type="hidden" name="id" value="<?php echo $dados ['id']; ?>">
-
-                                <button type="submit" name="btn-deletar" class="btn red">Sim, quero deletar.</button>
-
-                                <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cancelar</a>
-                            </form>
-                            </div>
-                        </div>
-                                
-                        </tr>
-                <?php 
-                endwhile;
-                else: ?> 
-                    <tr>-</tr>
-                    <tr>-</tr>
-                    <tr>-</tr>
-                    <tr>-</tr>
-
-                <?php
-                endif;
-                ?>
-
-            </tbody>
-        </table>
-        <br>
-
-        <!-- Botão Add -->
-        <a href="add.php" class="btn">Adicionar cliente</a>
-    </div>
-</div>
+<!-- Inputs login, senha e botão entrar -->
+<h1>Login</h1>
+<form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="POST">
+    Login: <input type="text" name="login" value="<?php echo isset($_COOKIE['login']) ? $_COOKIE['login'] : '' ?>">
+    <br>
+    Senha: <input type="password" name="senha" value="<?php echo isset($_COOKIE['senha']) ? $_COOKIE['senha'] : '' ?>">
+    <br>
+    <label>
+    <input type="checkbox" name="lembrar-senha" class="filled-in">
+    <span>Lembrar senha</span>
+    </label>
+    <br>
+    <button type="submit" name="btn-login" class="btn green"> Entrar </button>
+</form>
 <?php
 // Footer
-include_once 'includes/footer.php';
+require 'includes/footer.php';
 ?>
